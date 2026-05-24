@@ -13,14 +13,11 @@ function Dashboard() {
   const getTasks = async () => {
     try {
       const { data } = await axios.get(`${API}/api/tasks`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       setTasks(data);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -34,102 +31,87 @@ function Dashboard() {
     try {
       await axios.post(
         `${API}/api/tasks`,
-        {
-          title,
-          description,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { title, description },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setTitle("");
       setDescription("");
       getTasks();
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
   };
 
   const deleteTask = async (id) => {
-    try {
-      await axios.delete(`${API}/api/tasks/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      getTasks();
-    } catch (error) {
-      console.log(error);
-    }
+    await axios.delete(`${API}/api/tasks/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    getTasks();
   };
 
   const completeTask = async (id) => {
-    try {
-      await axios.put(
-        `${API}/api/tasks/${id}`,
-        { status: "completed" },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      getTasks();
-    } catch (error) {
-      console.log(error);
-    }
+    await axios.put(
+      `${API}/api/tasks/${id}`,
+      { status: "completed" },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    getTasks();
   };
 
   return (
-    <div className="dashboard">
-      <h1>Dashboard</h1>
+    <div className="dashboard-container">
+      <h1 className="dashboard-title">🚀 Dashboard</h1>
 
-      <form onSubmit={createTask}>
+      {/* Create Task */}
+      <div className="task-form">
         <input
           type="text"
-          placeholder="Task title"
+          placeholder="Enter task title..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
 
-        <br /><br />
-
         <textarea
-          placeholder="Task description"
+          placeholder="Enter task description..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        <br /><br />
+        <button onClick={createTask}>Add Task</button>
+      </div>
 
-        <button type="submit">Add Task</button>
-      </form>
+      {/* Task List */}
+      <div className="task-grid">
+        {tasks.length === 0 ? (
+          <p className="empty">No tasks yet</p>
+        ) : (
+          tasks.map((task) => (
+            <div className="task-card" key={task._id}>
+              <h3>{task.title}</h3>
+              <p>{task.description}</p>
 
-      <br />
+              <span
+                className={
+                  task.status === "completed"
+                    ? "status completed"
+                    : "status pending"
+                }
+              >
+                {task.status}
+              </span>
 
-      <div>
-        {tasks.map((task) => (
-          <div key={task._id} className="task-card">
-            <h3>{task.title}</h3>
-
-            <p>{task.description}</p>
-
-            <p>Status: {task.status}</p>
-
-            <button onClick={() => completeTask(task._id)}>
-              Complete
-            </button>
-
-            <button onClick={() => deleteTask(task._id)}>
-              Delete
-            </button>
-          </div>
-        ))}
+              <div className="task-actions">
+                <button onClick={() => completeTask(task._id)}>
+                  Complete
+                </button>
+                <button onClick={() => deleteTask(task._id)}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
