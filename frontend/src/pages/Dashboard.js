@@ -3,131 +3,24 @@ import axios from "axios";
 
 function Dashboard() {
   const [tasks, setTasks] = useState([]);
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  const [loading, setLoading] = useState(false);
-
-  const [editId, setEditId] = useState(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editDescription, setEditDescription] = useState("");
-
   const token = localStorage.getItem("token");
 
-  if (!token) {
-    window.location.href = "/login";
-  }
+  const API = "https://team-task-manager-backend-mbge.onrender.com";
 
   const getTasks = async () => {
     try {
-      setLoading(true);
-
-      const { data } = await axios.get("http://localhost:5000/api/tasks", {
-        headers: { Authorization: `Bearer ${token}` },
+      const { data } = await axios.get(`${API}/api/tasks`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       setTasks(data);
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
-      alert(error.response?.data?.message || "Error fetching tasks");
-    }
-  };
-
-  const createTask = async (e) => {
-    e.preventDefault();
-
-    if (!title || !description) {
-      alert("Please fill all fields");
-      return;
-    }
-
-    try {
-      await axios.post(
-        "http://localhost:5000/api/tasks",
-        {
-          title,
-          description,
-          status: "pending",
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      setTitle("");
-      setDescription("");
-      getTasks();
-    } catch (error) {
-      alert(error.response?.data?.message || "Error creating task");
-    }
-  };
-
-  const deleteTask = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/tasks/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      getTasks();
-    } catch (error) {
-      alert(error.response?.data?.message || "Error deleting task");
-    }
-  };
-
-  const completeTask = async (id) => {
-    try {
-      await axios.put(
-        `http://localhost:5000/api/tasks/${id}`,
-        {
-          status: "completed",
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      getTasks();
-    } catch (error) {
-      alert(error.response?.data?.message || "Error updating task");
-    }
-  };
-
-  const startEdit = (task) => {
-    setEditId(task._id);
-    setEditTitle(task.title);
-    setEditDescription(task.description);
-  };
-
-  const cancelEdit = () => {
-    setEditId(null);
-    setEditTitle("");
-    setEditDescription("");
-  };
-
-  const updateTask = async (id) => {
-    if (!editTitle || !editDescription) {
-      alert("Please fill all edit fields");
-      return;
-    }
-
-    try {
-      await axios.put(
-        `http://localhost:5000/api/tasks/${id}`,
-        {
-          title: editTitle,
-          description: editDescription,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      cancelEdit();
-      getTasks();
-    } catch (error) {
-      alert(error.response?.data?.message || "Error updating task");
+      console.log(error);
     }
   };
 
@@ -135,148 +28,109 @@ function Dashboard() {
     getTasks();
   }, []);
 
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(
-    (task) => task.status === "completed"
-  ).length;
-  const pendingTasks = tasks.filter(
-    (task) => task.status !== "completed"
-  ).length;
+  const createTask = async (e) => {
+    e.preventDefault();
+
+    try {
+      await axios.post(
+        `${API}/api/tasks`,
+        {
+          title,
+          description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setTitle("");
+      setDescription("");
+      getTasks();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteTask = async (id) => {
+    try {
+      await axios.delete(`${API}/api/tasks/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      getTasks();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const completeTask = async (id) => {
+    try {
+      await axios.put(
+        `${API}/api/tasks/${id}`,
+        { status: "completed" },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      getTasks();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-    <div className="container">
+    <div className="dashboard">
       <h1>Dashboard</h1>
 
-      <div className="stats-grid">
-        <div className="card stat-card">
-          <h3>Total Tasks</h3>
-          <h1>{totalTasks}</h1>
-        </div>
+      <form onSubmit={createTask}>
+        <input
+          type="text"
+          placeholder="Task title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-        <div className="card stat-card">
-          <h3>Completed</h3>
-          <h1>{completedTasks}</h1>
-        </div>
+        <br /><br />
 
-        <div className="card stat-card">
-          <h3>Pending</h3>
-          <h1>{pendingTasks}</h1>
-        </div>
-      </div>
+        <textarea
+          placeholder="Task description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-      <div className="card">
-        <h2>Create Task</h2>
+        <br /><br />
 
-        <form onSubmit={createTask}>
-          <input
-            type="text"
-            placeholder="Enter task title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+        <button type="submit">Add Task</button>
+      </form>
 
-          <br />
-          <br />
+      <br />
 
-          <input
-            type="text"
-            placeholder="Enter task description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+      <div>
+        {tasks.map((task) => (
+          <div key={task._id} className="task-card">
+            <h3>{task.title}</h3>
 
-          <br />
-          <br />
+            <p>{task.description}</p>
 
-          <button type="submit">Add Task</button>
-        </form>
-      </div>
+            <p>Status: {task.status}</p>
 
-      <h2>Your Tasks</h2>
+            <button onClick={() => completeTask(task._id)}>
+              Complete
+            </button>
 
-      {loading && <p>Loading tasks...</p>}
-
-      {!loading && tasks.length === 0 ? (
-        <div className="card" style={{ textAlign: "center" }}>
-          <h3>📭 No Tasks Yet</h3>
-          <p>Create your first task to get started!</p>
-        </div>
-      ) : (
-        tasks.map((task) => (
-          <div key={task._id} className="card task-card">
-            {editId === task._id ? (
-              <>
-                <input
-                  type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                />
-
-                <br />
-                <br />
-
-                <input
-                  type="text"
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                />
-
-                <br />
-                <br />
-
-                <button onClick={() => updateTask(task._id)}>
-                  Save
-                </button>
-
-                <button
-                  onClick={cancelEdit}
-                  style={{
-                    marginLeft: "10px",
-                    background: "#64748b",
-                  }}
-                >
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                <h3>{task.title}</h3>
-                <p>{task.description}</p>
-
-                <p>
-                  Status: <span className="status">{task.status}</span>
-                </p>
-
-                {task.status !== "completed" && (
-                  <button onClick={() => completeTask(task._id)}>
-                    Mark Completed
-                  </button>
-                )}
-
-                <button
-                  onClick={() => startEdit(task)}
-                  style={{
-                    marginLeft: "10px",
-                    background: "#f59e0b",
-                  }}
-                >
-                  Edit
-                </button>
-
-                <button
-                  onClick={() => deleteTask(task._id)}
-                  style={{
-                    marginLeft: "10px",
-                    background: "#dc2626",
-                  }}
-                >
-                  Delete
-                </button>
-              </>
-            )}
+            <button onClick={() => deleteTask(task._id)}>
+              Delete
+            </button>
           </div>
-        ))
-      )}
+        ))}
+      </div>
     </div>
   );
 }

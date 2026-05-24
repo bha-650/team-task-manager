@@ -9,14 +9,9 @@ function Register() {
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    if (!name || !email || !password) {
-      alert("Please fill all fields");
-      return;
-    }
-
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "https://team-task-manager-backend-mbge.onrender.com/api/auth/register",
         {
           name,
           email,
@@ -36,12 +31,11 @@ function Register() {
     <div className="container">
       <div className="card auth-card">
         <h1>Create Account 🚀</h1>
-        <p>Register to start managing your team tasks.</p>
 
         <form onSubmit={submitHandler}>
           <input
             type="text"
-            placeholder="Full name"
+            placeholder="Enter Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -50,7 +44,7 @@ function Register() {
 
           <input
             type="email"
-            placeholder="Email address"
+            placeholder="Enter Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -59,14 +53,14 @@ function Register() {
 
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Enter Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
 
           <br /><br />
 
-          <button type="submit">Create Account</button>
+          <button type="submit">Register</button>
         </form>
       </div>
     </div>

@@ -9,13 +9,15 @@ function Login() {
     e.preventDefault();
 
     try {
-      const { data } = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
+      const { data } = await axios.post(
+        "https://team-task-manager-backend-mbge.onrender.com/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
 
       localStorage.setItem("token", data.token);
-      alert("Login Successful");
       window.location.href = "/dashboard";
     } catch (error) {
       alert(error.response?.data?.message || "Login failed");
@@ -26,12 +28,11 @@ function Login() {
     <div className="container">
       <div className="card auth-card">
         <h1>Welcome Back 👋</h1>
-        <p>Login to manage your team tasks.</p>
 
         <form onSubmit={submitHandler}>
           <input
             type="email"
-            placeholder="Email address"
+            placeholder="Enter Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -40,7 +41,7 @@ function Login() {
 
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Enter Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
